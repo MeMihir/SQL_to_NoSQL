@@ -6,6 +6,7 @@ var express     = require('express'),
 
 var getData     = require('./sqlip');
     nosql       = require('./nosql');
+    structure   = require('./output');
 
 app.use(bodyParser.urlencoded({extended : true}));
 app.set('view engine','ejs');
@@ -16,8 +17,8 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-    nosql.put_data(req);
     // let structure = await getData.get_data(req,res);
+    nosql.put_data(req, structure);
     // console.log(structure);
     // res.render('show', {data : strcutre})
 })
