@@ -28,14 +28,23 @@ datatype =  (sqldt) => {
 }
 
 
-model.model = async (name, metadata) => {
+model.model = async (name, metadata, foreignKeys) => {
     let schema = {}
     await functions.asyncForEach(Object.values(metadata), (docs, i) => {
+        let i = Object.values(foreignKeys).map( o => o.TableName === name && o.ColumnName === docs).index(true);
+        
+        if(i!=-1){
+            let fk  = foreignKeys[i];
+            schema[`${docs.name}_fk`] = [{
+                type    : mongoose.Schema.Types.ObjectId,
+                ref     : fk.ReferenceTableName
+            }]
+        }
+
         schema[`${docs.name}`] = {
             type    : datatype(docs.type),
             unique  : docs.identity,
         }
-
         // console.log(2,doc);
     })
     return mongoose.model(`${name}`, schema);

@@ -1,6 +1,7 @@
 const mongoose  = require('mongoose');
 const model     = require('./model');
 const functions = require('../functions');
+const relation  = require('./relation');
 
 let nosql = {};
 // str = [{shcema_name : '', 
@@ -17,14 +18,14 @@ nosql.put_data = async (req, structure) => {
     let Models = {}
 
     //SCHEMA MODELING
-    await functions.asyncForEach(structure, async (schema, i) => {
-        await functions.asyncForEach(schema.tables, async (table, j) => {
-            Models[`${table.TABLE_NAME}`] = await model.model(table.TABLE_NAME, table.metadata)
+    await functions.asyncForEach(structure, async schema => {
+        await functions.asyncForEach(schema.tables, async table => {
+            Models[`${table.TABLE_NAME}`] = await model.model(table.TABLE_NAME, table.metadata, structure.foreignKeys)
         })
     })
 
-    await functions.asyncForEach(structure, async (schema, i) => {
-        await functions.asyncForEach(schema.tables, async (table, j) => {
+    await functions.asyncForEach(structure, async schema => {
+        await functions.asyncForEach(schema.tables, async table => {
             if(table !== undefined){
                 await Models[`${table.TABLE_NAME}`].insertMany(table.data, (err) => {
                     if(err) {
@@ -32,8 +33,12 @@ nosql.put_data = async (req, structure) => {
                     }
                 })
             }
-            console.log(Models);
+            // console.log(Models);
         })
+    })
+
+    await functions.asyncForEach(Object.values(structure.foreignKeys), async fkeys => {
+        await relation.realtion(Models[fkeys.TableName], Models[fkeys.ReferenceTableName], fkeys.ColumnName, fkeys.ReferenceColumnName);
     })
     // let metadata = {"categoryid":{"index":0,"name":"categoryid","nullable":false,"caseSensitive":false,"identity":true,"readOnly":true},"categoryname":{"index":1,"name":"categoryname","length":30,"nullable":false,"caseSensitive":false,"identity":false,"readOnly":false},"description":{"index":2,"name":"description","length":400,"nullable":false,"caseSensitive":false,"identity":false,"readOnly":false}}
 
