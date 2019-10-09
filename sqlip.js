@@ -1,7 +1,8 @@
 const sql       = require('mssql');
 const funs      = require('./functions');
-const express   = require('express');
-const app       = express(); 
+// const express   = require('express');
+// const app       = express();
+const nosql     = require('./nosql')
 
 let get_data = {};
 
@@ -10,21 +11,21 @@ get_data.get_data = async (req,res) => {
         user        : req.body.user, //testuser
         password    : req.body.password, //password123,
         server      : 'localhost',
-        database    : req.body.database, //TSQLV3,
+        database    : req.body.database_ip, //TSQLV3,
         port        : 1433,
         dialect     : 'mssql',
         dialectOptions  : {
             'instanceName'  : 'SQLEXPRESS'
         }
     };
-
+    console.log(1)
     let structure = [];
 
     sql.connect(config, async (err) => {
         if (err) {
-            console.log(err);
+            console.log(2,err);
         } else {
-
+            // console.log(2) }})
             //SCHEMAS
             let request_schema = new sql.Request();
             
@@ -52,62 +53,15 @@ get_data.get_data = async (req,res) => {
                 })
             })
 
-            let foreigenKeys = await request.query('SELECT f.name AS ForeignKey, OBJECT_NAME(f.parent_object_id) AS TableName, COL_NAME(fc.parent_object_id, fc.parent_column_id) AS ColumnName, OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName, COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS ReferenceColumnName FROM sys.foreign_keys AS f INNER JOIN sys.foreign_key_columns AS fc ON f.OBJECT_ID = fc.constraint_object_id');
+            let request_fk = new sql.Request()
+            let foreignKeys = await request_fk.query('SELECT f.name AS ForeignKey, OBJECT_NAME(f.parent_object_id) AS TableName, COL_NAME(fc.parent_object_id, fc.parent_column_id) AS ColumnName, OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName, COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS ReferenceColumnName FROM sys.foreign_keys AS f INNER JOIN sys.foreign_key_columns AS fc ON f.OBJECT_ID = fc.constraint_object_id');
 
-            structure.foreigenKeys = foreigenKeys.recordset;
-            
-            // console.log(structure);
-            res.send(structure);
-            // return structure;
-            
+            fKeys   = foreignKeys.recordset;            
+
+            // console.log(fKeys, structure);
+            nosql.put_data(req, structure, fKeys);
         }
     })
 }
 
 module.exports = get_data;
-
-// [ { ForeignKey: 'FK_Employees_Employees',
-// TableName: 'Employees',
-// ColumnName: 'mgrid',
-// ReferenceTableName: 'Employees',
-// ReferenceColumnName: 'empid' },
-// { ForeignKey: 'FK_Orders_Employees',
-// TableName: 'Orders',
-// ColumnName: 'empid',
-// ReferenceTableName: 'Employees',
-// ReferenceColumnName: 'empid' },
-// { ForeignKey: 'FK_Products_Suppliers',
-// TableName: 'Products',
-// ColumnName: 'supplierid',
-// ReferenceTableName: 'Suppliers',
-// ReferenceColumnName: 'supplierid' },
-// { ForeignKey: 'FK_Products_Categories',
-// TableName: 'Products',
-// ColumnName: 'categoryid',
-// ReferenceTableName: 'Categories',
-// ReferenceColumnName: 'categoryid' },
-// { ForeignKey: 'FK_OrderDetails_Products',
-// TableName: 'OrderDetails',
-// ColumnName: 'productid',
-// ReferenceTableName: 'Products',
-// ReferenceColumnName: 'productid' },
-// { ForeignKey: 'FK_Orders_Customers',
-// TableName: 'Orders',
-// ColumnName: 'custid',
-// ReferenceTableName: 'Customers',
-// ReferenceColumnName: 'custid' },
-// { ForeignKey: 'FK_Orders_Shippers',
-// TableName: 'Orders',
-// ColumnName: 'shipperid',
-// ReferenceTableName: 'Shippers',
-// ReferenceColumnName: 'shipperid' },
-// { ForeignKey: 'FK_OrderDetails_Orders',
-// TableName: 'OrderDetails',
-// ColumnName: 'orderid',
-// ReferenceTableName: 'Orders',
-// ReferenceColumnName: 'orderid' },
-// { ForeignKey: 'FK_Scores_Tests',
-// TableName: 'Scores',
-// ColumnName: 'testid',
-// ReferenceTableName: 'Tests',
-// ReferenceColumnName: 'testid' } ]
