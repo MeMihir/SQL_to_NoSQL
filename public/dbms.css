@@ -1,0 +1,22 @@
+h1
+{
+	text-align: center;
+	margin: 20px auto;
+	text-decoration: underline;
+	/*text-decoration-color: #333300;*/
+}
+.forms
+{
+	margin-top: 2rem;
+}
+body
+{
+background: #3D7EAA;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #FFE47A, #3D7EAA);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #FFE47A, #3D7EAA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+button
+{
+	margin: 0 20px 0 0;
+}
