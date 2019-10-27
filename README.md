@@ -12,7 +12,7 @@ This tool migrates from one database to another(MongoDB, for now), so here are t
 - Now follow the configuration steps for MS SSMS (SQL Server Management System) from this link (I'll have to look for it, give me a couple of days)
 - Make sure you have [node](https://nodejs.org/en/) installed, cause, this is a node app.
 
-And yep, you are all set up
+And yup, you are all set up
 
 ### Installing
 - Next clone this software, or download the zip file and unzip it
